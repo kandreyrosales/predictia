@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+<!-- Page Content  -->
+{% block content %}
+<div class="row content">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a href="#" id="sidebarCollapse">
+                <i class="bi bi-layout-sidebar"></i>
+            </a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a> Dashboards  /  Gráfico Datos Históricos</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid">
+        {% include "boxfiltergeneric.html" %}
+        <div class="row" style="margin-top:20px;margin-bottom: 30px;">
+            <div class="col">
+                <p id="loading_historical_data" style="display: none">Cargando datos desde el servidor...</p>
+                <canvas id="myChartHistoricalDataExpanded"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extrajs %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+
+        $('#{{select_panel_name}}').select2({
+            ajax: {
+                url: 'https://jsonplaceholder.typicode.com/todos/1',
+                processResults: function (data) {
+                  // Transforms the top-level key of the response object from 'items' to 'results'
+                  return {
+                    results: [
+                        {"id": 1, "text": "Producto 1"},
+                        {"id": 2, "text": "Producto 2"},
+                        {"id": 3, "text": "Producto 3"},
+                        {"id": 4, "text": "Producto 4"},
+                        {"id": 5, "text": "Producto 5"},
+                        {"id": 6, "text": "Producto 6"},
+                    ]
+                  };
+                }
+              }
+        });
+
+        function get_random_color(){
+            var randomColor = '#'+ ('000000' + Math.floor(Math.random()*16777215).toString(16)).slice(-6);
+            return randomColor;
+        }
+
+        var myChartHistoricalDataExpanded = new Chart("myChartHistoricalDataExpanded", {
+            type: "line",
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                title: {
+                  display: false,
+                }
+              }
+            },
+          });
+
+        
+
+        function show_loader(id_loader){
+            id_loader.show();
+        }
+
+        function get_choices_product_names(){
+            var selectedOptions = $('#{{select_panel_name}}').select2('data');
+                var selectedOptionNames = selectedOptions.map(function(option) {
+                    return option.id;
+                });
+                return selectedOptionNames;
+        }
+
+        // Action for Apply Filter on Charts
+        $('#apply_filter').click(function() {
+            var products_to_filter_data = get_choices_product_names();
+            load_data_for_charts(products_to_filter_data);
+        });
+        
+        function load_data_for_charts(products_to_filter=[]){
+            var endpoint_xaldigital = 'https://jsonplaceholder.typicode.com/todos/1';
+            if (products_to_filter.length > 0){
+                var product_list_commas = products_to_filter.join(',');
+                endpoint_xaldigital = "https://jsonplaceholder.typicode.com/todos/1/"+"?products="+product_list_commas;
+            }
+
+            console.log(endpoint_xaldigital)
+            
+            // Ajax for myChartHistoricalDataExpanded
+            $.ajax({
+                url: endpoint_xaldigital,
+                type: 'get',
+                beforeSend: function(){
+                    show_loader($("#loading_historical_data"))
+                }
+            })
+            .done(function(data) {
+                $("#loading_historical_data").hide();
+                // fill depending on products in the response
+                data = [
+                    {"product_name": "Producto 1", "data": [10, 2, 30, 44,600, 800, 300]},
+                    {"product_name": "Producto 2", "data": [10, 2, 50, 44,600, 800, 100]},
+                    {"product_name": "Producto 3", "data": [10, 2, 80, 44,600, 800, 145]},
+                    {"product_name": "Producto 4", "data": [4, 2, 120, 44,600, 800, 456]},
+                    {"product_name": "Producto 5", "data": [10, 2, 30, 44,600, 800, 56]},
+                    {"product_name": "Producto 6", "data": [5, 2, 30, 44,600, 800, 10]},
+                    {"product_name": "Producto 7", "data": [10, 2, 500, 44,600, 1000, 266]},
+                    {"product_name": "Producto 8", "data": [2, 2, 30, 44,600, 800, 677]},
+                    {"product_name": "Producto 9", "data": [10, 2, 30, 44,600, 800, 500]},
+                    {"product_name": "Producto 4", "data": [4, 2, 120, 44,600, 800, 456]},
+                    {"product_name": "Producto 5", "data": [10, 2, 30, 44,600, 800, 56]},
+                    {"product_name": "Producto 6", "data": [5, 2, 30, 44,600, 800, 10]},
+                    {"product_name": "Producto 7", "data": [10, 2, 500, 44,600, 1000, 266]},
+                    {"product_name": "Producto 8", "data": [2, 2, 30, 44,600, 800, 677]},
+                    {"product_name": "Producto 9", "data": [10, 2, 30, 44,600, 800, 500]},
+                    {"product_name": "Producto 4", "data": [4, 2, 120, 44,600, 800, 456]},
+                    {"product_name": "Producto 5", "data": [10, 2, 30, 44,600, 800, 56]},
+                    {"product_name": "Producto 6", "data": [5, 2, 30, 44,600, 800, 10]},
+                    {"product_name": "Producto 7", "data": [10, 2, 500, 44,600, 1000, 266]},
+                    {"product_name": "Producto 8", "data": [2, 2, 30, 44,600, 800, 677]},
+                    {"product_name": "Producto 9", "data": [10, 2, 30, 44,600, 800, 500]},
+                    {"product_name": "Producto 5", "data": [10, 2, 30, 44,600, 800, 56]},
+                    {"product_name": "Producto 6", "data": [5, 2, 30, 44,600, 800, 10]},
+                    {"product_name": "Producto 7", "data": [10, 2, 500, 44,600, 1000, 266]},
+                    {"product_name": "Producto 8", "data": [2, 2, 30, 44,600, 800, 677]},
+                    {"product_name": "Producto 9", "data": [10, 2, 30, 44,600, 800, 500]},
+                    {"product_name": "Producto 4", "data": [4, 2, 120, 44,600, 800, 456]},
+                    {"product_name": "Producto 5", "data": [10, 2, 30, 44,600, 800, 56]},
+                    {"product_name": "Producto 6", "data": [5, 2, 30, 44,600, 800, 10]},
+                    {"product_name": "Producto 7", "data": [10, 2, 500, 44,600, 1000, 266]},
+                    {"product_name": "Producto 8", "data": [2, 2, 30, 44,600, 800, 677]},
+                    {"product_name": "Producto 9", "data": [10, 2, 30, 44,600, 800, 500]},
+                ]
+
+                var custom_array_with_data_structure = [];
+
+                $.each(data, function(index, product_item_data) {
+                    var color_random = get_random_color();
+                    custom_array_with_data_structure.push({
+                        label: product_item_data.product_name,
+                        data: product_item_data.data,
+                        borderColor: color_random,
+                        backgroundColor: color_random,
+                        fill: false
+                    })
+                });
+                // x axis comes from endpoint as well or calculated
+                var x_values_historical_data = [100,200,300,400,500,600,700,800,900,1000];
+
+                myChartHistoricalDataExpanded.config.data.labels = x_values_historical_data;
+                myChartHistoricalDataExpanded.config.data.datasets = custom_array_with_data_structure;
+                myChartHistoricalDataExpanded.update();
+            })
+            .fail(function(jqXHR) {
+                console.log("data");
+            });
+        }
+        
+    });
+</script>
+{% endblock %}

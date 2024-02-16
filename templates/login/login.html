@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container mt-5">
+        <div style="text-align:center">
+            <div>
+            <img src={{ url_for('static', filename="assets/img/logoxalpredictia.png") }} alt="Logo PredictIA XALDIGITAL" class="logoxaldigital">
+            </div>
+            <div>
+            <img src={{ url_for('static', filename="assets/img/erizoxaldigital.png") }} alt="Logo Erizo XALDIGITAL" class="logoerizo">
+            </div>
+        </div>
+        <div class="sidebar-header" style="text-align:center;margin-top: 20px; margin-bottom:20px;">
+            <span id="logo">PREDICTIA</span>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header titles-predictia">
+                        <span>LOGIN</span>
+                    </div>
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="username" class="titles-predictia">Username</label>
+                                <input type="text" class="form-control form_login" id="username" placeholder="Ingresa tu usuario">
+                            </div>
+                            <div class="form-group">
+                                <label for="password" class="titles-predictia">Password</label>
+                                <input type="password" class="form-control form_login" id="password" placeholder="Ingresa tu contraseña">
+                            </div>
+                            <button type="submit" class="btn button_login">Acceder</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
