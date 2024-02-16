@@ -20,3 +20,4 @@ terraform.rc
 
 venv/
 __pycache__/
+utils/
