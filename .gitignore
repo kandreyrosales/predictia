@@ -21,3 +21,7 @@ terraform.rc
 venv/
 __pycache__/
 utils/
+utils/.terraform.lock.hcl
+utils/terraform.tfstate
+utils/terraform.tfstate.backup
+.terraform/

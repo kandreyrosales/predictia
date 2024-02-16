@@ -13,11 +13,12 @@ resource "aws_instance" "flask_ec2" {
       # Install required packages
       "sudo apt-get update -y",
       "sudo apt-get install -y python3 git",
-      "sudo apt-get install -y python3-pip",
+      "curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py",
+      "sudo python3 get-pip.py",
       "sudo apt-get install -y python3-venv",  # Install python3-venv package for virtual environments
 
       # Clone Flask application from GitHub
-      "git clone https://github.com/kandreyrosales/predictia-xaldigital.git /home/ubuntu/flask_app",
+      "git clone https://github.com/kandreyrosales/predictia.git /home/ubuntu/flask_app",
       
       # Create and activate virtual environment
       "cd /home/ubuntu/flask_app",
@@ -68,11 +69,11 @@ resource "aws_instance" "flask_ec2" {
     Name = "PredictIA-Flask-Ubuntu"
   }
 
-  vpc_security_group_ids = [aws_security_group.flask_sg.id]
+  vpc_security_group_ids = [aws_security_group.flask_sg_predictia.id]
 }
 
-resource "aws_security_group" "flask_sg" {
-  name        = "flask_sg"
+resource "aws_security_group" "flask_sg_predictia" {
+  name        = "flask_sg_predictia"
   description = "Security group for Flask EC2 instance"
 
   // Ingress rule to allow HTTP traffic from anywhere
@@ -107,4 +108,9 @@ resource "aws_security_group" "flask_sg" {
 
 output "public_ip" {
   value = aws_instance.flask_ec2.public_ip
+}
+
+resource "aws_cognito_user_pool" "example" {
+  name = "predictia-user-pool"
+  # Specify other configuration options as needed
 }
