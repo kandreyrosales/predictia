@@ -1,12 +1,12 @@
+import os
 from flask import Flask, render_template
 
 app = Flask(__name__)
 
 @app.route('/panel-precision-pronotiscos')
 def panel_precision_pronosticos():
-    accessKeyId = 'TU_ACCESS_KEY_ID'
-    secretAccessKey = 'TU_SECRET_ACCESS_KEY'
-    BUCKET_NAME = "examplebucket"
+    accessKeyId = os.environ.get("accessKeyId")
+    secretAccessKey = os.environ.get("secretAccessKey")
     return render_template(
         'forecasting_panel.html',
         select_panel_name="select_forecasting_panel",
@@ -17,8 +17,8 @@ def panel_precision_pronosticos():
 
 @app.route('/datoshistoricos')
 def datos_historicos():
-    accessKeyId = 'TU_ACCESS_KEY_ID'
-    secretAccessKey = 'TU_SECRET_ACCESS_KEY'
+    accessKeyId = os.environ.get("accessKeyId")
+    secretAccessKey = os.environ.get("secretAccessKey")
     return render_template(
         'historical_data_panel.html',
         select_panel_name="select_datos_historicos_panel",
@@ -29,8 +29,8 @@ def datos_historicos():
 
 @app.route('/datospronosticados')
 def datos_pronosticados():
-    accessKeyId = 'TU_ACCESS_KEY_ID'
-    secretAccessKey = 'TU_SECRET_ACCESS_KEY'
+    accessKeyId = os.environ.get("accessKeyId")
+    secretAccessKey = os.environ.get("secretAccessKey")
     return render_template(
         'forecasting_data_panel.html',
         select_panel_name="select_datos_historicos_panel",
@@ -41,8 +41,8 @@ def datos_pronosticados():
 
 @app.route('/login')
 def login():
-    accessKeyId = 'TU_ACCESS_KEY_ID'
-    secretAccessKey = 'TU_SECRET_ACCESS_KEY'
+    accessKeyId = os.environ.get("accessKeyId")
+    secretAccessKey = os.environ.get("secretAccessKey")
     return render_template(
         'login/login.html',
         accessKeyId=accessKeyId,
@@ -52,12 +52,12 @@ def login():
 
 @app.route('/')
 def index():
-    accessKeyId = 'TU_ACCESS_KEY_ID'
-    secretAccessKey = 'TU_SECRET_ACCESS_KEY'
-    BUCKET_NAME = "examplebucket"
+    accessKeyId = os.environ.get("accessKeyId")
+    secretAccessKey = os.environ.get("secretAccessKey")
+    bucket_name = os.environ.get("bucket_name")
     return render_template(
         'index.html',
-        bucket_name=BUCKET_NAME,
+        bucket_name=bucket_name,
         accessKeyId=accessKeyId,
         secretAccessKey=secretAccessKey
     )
