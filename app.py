@@ -11,8 +11,20 @@ app = Flask(__name__)
 
 app.secret_key = 'xaldigital!'
 
+
+
 COGNITO_REGION = 'us-east-1'
-cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
+
+accessKeyId = os.getenv("accessKeyId")
+secretAccessKey = os.getenv("secretAccessKey")
+
+cognito_client = boto3.client(
+    'cognito-idp', 
+    region_name=COGNITO_REGION, 
+    aws_access_key_id=accessKeyId,
+    aws_secret_access_key=secretAccessKey
+)
+
 client_id_cognito =str(os.getenv("client_id"))
 user_pool_cognito =str(os.getenv("user_pool"))
 
@@ -41,8 +53,6 @@ def token_required(f):
 @app.route('/panel-precision-pronotiscos')
 @token_required
 def panel_precision_pronosticos():
-    accessKeyId = os.getenv("accessKeyId")
-    secretAccessKey = os.getenv("secretAccessKey")
     return render_template(
         'forecasting_panel.html',
         select_panel_name="select_forecasting_panel",
@@ -54,8 +64,6 @@ def panel_precision_pronosticos():
 @app.route('/datoshistoricos')
 @token_required
 def datos_historicos():
-    accessKeyId = os.getenv("accessKeyId")
-    secretAccessKey = os.getenv("secretAccessKey")
     return render_template(
         'historical_data_panel.html',
         select_panel_name="select_datos_historicos_panel",
@@ -67,8 +75,6 @@ def datos_historicos():
 @app.route('/datospronosticados')
 @token_required
 def datos_pronosticados():
-    accessKeyId = os.getenv("accessKeyId")
-    secretAccessKey = os.getenv("secretAccessKey")
     return render_template(
         'forecasting_data_panel.html',
         select_panel_name="select_datos_historicos_panel",
@@ -81,8 +87,6 @@ def datos_pronosticados():
 @app.route('/')
 @token_required
 def index():
-    accessKeyId = str(os.getenv("accessKeyId"))
-    secretAccessKey = str(os.getenv("secretAccessKey"))
     bucket_name = str(os.getenv("bucket_name"))
     return render_template(
         'index.html',
@@ -134,9 +138,8 @@ def set_new_password():
     new_password = request.form['new_password']
     session_data=request.form['session']
     
-    client = boto3.client('cognito-idp', region_name=COGNITO_REGION)  # Replace 'your-region' with your AWS region
     try:
-        response = client.respond_to_auth_challenge(
+        response = cognito_client.respond_to_auth_challenge(
             ClientId=client_id_cognito,  # Replace 'your-client-id' with your Cognito app client ID
             ChallengeName='NEW_PASSWORD_REQUIRED',
             Session=session_data,  # Include the session token from the previous response
@@ -147,7 +150,7 @@ def set_new_password():
         )
         return redirect(url_for('index'))
 
-    except client.exceptions.NotAuthorizedException as e:
+    except cognito_client.exceptions.NotAuthorizedException as e:
         # Handle authentication failure
         return render_template('login/login.html', error="Hubo un problema al asignar una nueva contraseña")
     except Exception as e:
