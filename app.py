@@ -13,8 +13,8 @@ app.secret_key = 'xaldigital!'
 
 COGNITO_REGION = 'us-east-1'
 cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
-client_id_cognito =os.getenv("client_id")
-user_pool_cognito =os.getenv("user_pool")
+client_id_cognito =str(os.getenv("client_id"))
+user_pool_cognito =str(os.getenv("user_pool"))
 
 def token_required(f):
     @wraps(f)
@@ -155,6 +155,8 @@ def set_new_password():
         return render_template('login/login.html', error="Hubo un problema al asignar una nueva contraseña")
 
 def authenticate_user(username, password):
+    client_id_cognito =str(os.getenv("client_id"))
+    user_pool_cognito =str(os.getenv("user_pool"))
     try:
         response = cognito_client.admin_initiate_auth(
             AuthFlow='ADMIN_NO_SRP_AUTH',
