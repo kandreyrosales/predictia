@@ -100,8 +100,8 @@ def login():
         
         if username and password:
             cognito_response = authenticate_user(username, password)
-            if cognito_response == "Credenciales Inválidas o Usuario No Encontrado":
-                return render_template('login/login.html', error=cognito_response)
+            if cognito_response.get("reason") is not None:
+                return render_template('login/login.html', error=cognito_response.get("error_info"))
             else:
                 challenge_name = cognito_response.get('ChallengeName', None)
                 if challenge_name == 'NEW_PASSWORD_REQUIRED':
@@ -173,11 +173,11 @@ def authenticate_user(username, password):
     except cognito_client.exceptions.NotAuthorizedException as e:
         print(e)
         # Handle invalid credentials
-        return f"No autorizado: {e}"
+        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     except Exception as e:
         print(e)
         # Handle other errors
-        return f"Credenciales Inválidas o Usuario No Encontrado: {e}"
+        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     
 @app.route('/logout')
 def logout():
