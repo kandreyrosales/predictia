@@ -163,7 +163,7 @@ def authenticate_user(username, password):
                 'PASSWORD': password
             },
             ClientId=client_id_cognito,
-            UserPoolId="us-east-1_JGceLswsU",
+            UserPoolId=user_pool_cognito,
             ClientMetadata={
                   'username': username,
                   'password': password,
@@ -171,11 +171,9 @@ def authenticate_user(username, password):
         )
         return response
     except cognito_client.exceptions.NotAuthorizedException as e:
-        print(e)
         # Handle invalid credentials
         return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     except Exception as e:
-        print(e)
         # Handle other errors
         return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     
