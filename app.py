@@ -172,10 +172,10 @@ def authenticate_user(username, password):
         return response
     except cognito_client.exceptions.NotAuthorizedException as e:
         # Handle invalid credentials
-        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e + "1"}
+        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": f"{e} {username} {password} {client_id_cognito} {user_pool_cognito}"}
     except Exception as e:
         # Handle other errors
-        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e + "2"}
+        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": f"{e} {username} {password} {client_id_cognito} {user_pool_cognito}}
     
 @app.route('/logout')
 def logout():
