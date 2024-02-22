@@ -191,6 +191,8 @@ $(document).ready(function() {
   // Send CSV file to S3
   $('#btnsendfile').click(function() {
         var file = document.getElementById('fileInput').files[0];
+        var formData = new FormData();
+        formData.append('file', $('#fileInput')[0].files[0]);
 
         if (!file) {
             Swal.fire('Por favor selecciona un archivo.');
@@ -200,7 +202,9 @@ $(document).ready(function() {
         $.ajax({
           url: '{{ url_for('upload_to_server') }}',
           type: 'POST',
-          data: file,
+          data: formData,
+          processData: false,
+          contentType: false,
         })
         .done(function(data) {
           Swal.fire(data);
