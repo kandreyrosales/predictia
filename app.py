@@ -34,7 +34,6 @@ user_pool_cognito =str(os.getenv("user_pool"))
 def upload_to_server():
     # Get the file from the request
     file = request.files['file']
-    print("file: ", file)
 
     # Upload the file to S3
     s3 = boto3.client(
@@ -47,7 +46,6 @@ def upload_to_server():
         s3.upload_fileobj(file, bucket_name, file.filename)
         return 'Archivo subido exitosamente!'
     except Exception as e:
-        print(e)
         return str(e)
 
 def generate_chart_colors(num_colors):
@@ -55,14 +53,10 @@ def generate_chart_colors(num_colors):
     hues = [i / num_colors for i in range(num_colors)]
     saturation = 0.7  # Adjust saturation and value to get desired colorfulness
     value = 0.9
-
     # Convert HSL colors to RGB
     colors = [colorsys.hsv_to_rgb(hue, saturation, value) for hue in hues]
-
     # Scale RGB values to the range [0, 255]
     colors = [f"rgba{(int(r * 255), int(g * 255), int(b * 255))}" for (r, g, b) in colors]
-
-
     return colors
 
 def token_required(f):
@@ -71,7 +65,6 @@ def token_required(f):
         token = session.get("access_token")
         if not token:
             return render_template('login/login.html')
-
         try:
             decoded_token = jwt.decode(token, options={"verify_signature": False})  # Decode the token without verifying signature
             expiration_time = datetime.utcfromtimestamp(decoded_token['exp'])
@@ -96,10 +89,8 @@ def metricas_error():
     mape_last_month = 0
     bias_avg = round(json_result.get("average_bias", 0), 2) if json_result else 0
     bias_last_month= 0
-
     mape_data_labels = []
     mape_data = []
-
     bias_labels = []
     bias_data = []
     
@@ -108,10 +99,8 @@ def metricas_error():
         mape_data_labels = list(json_result["mape_values_by_month"].keys())
         mape_data = {"labels": mape_data_labels, "datasets": [{"label": "MAPE", "data": mape_data_list, "backgroundColor": "rgba(254, 232, 0, 1)"}]}
         mape_last_month = round(mape_data_list[-1], 2)
-        
         bias_data_list = list(json_result["bias_values_by_month"].values())
         bias_labels = list(json_result["bias_values_by_month"].keys())
-        
         colors = ["rgba(127, 127, 127, 1)" if b < 0 else "rgba(254, 232, 0, 1)" for b in bias_data_list]
         bias_data = {"labels": bias_labels, "datasets": [{"label": "BIAS", "data": bias_data_list, 'borderColor': colors, 'backgroundColor': colors}]}
         bias_last_month = round(bias_data_list[-1], 2)
@@ -211,10 +200,13 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+        Accesing with Cognito using username and password.
+        After login is redirected to reset password and login again
+    """
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
         if username and password:
             cognito_response = authenticate_user(username, password)
             if cognito_response.get("reason") is not None:
@@ -347,9 +339,7 @@ def invoke_lambda_forecast():
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         body = json.loads(result["body"])
-        # print(body)
         data_list = body["data"]
-        # print(data_list)
         
         # Initialize a dictionary to store unique_id and corresponding y values
         result = {}
