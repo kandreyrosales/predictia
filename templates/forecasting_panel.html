@@ -23,11 +23,13 @@
                 <span id="titlefilter">Productos a filtrar</span>
                 <select id="select_forecasting_panel" multiple="multiple">
                 </select>
-                
-                <button type="button" class="btn btn-secondary applyfilter" id="apply_filter">
-                    <i class="bi bi-check-lg"></i> Aplicar filtro
-                </button>
+                <div class="row">
+                    <button type="button" class="btn btn-secondary applyfilter" id="apply_filter">
+                        <i class="bi bi-check-lg"></i> Aplicar filtro
+                    </button>
+                </div>
             </div>
+            
         </div>
         <div class="row" style="margin-top:20px" id="boxesrow">
             <div class="col">
@@ -126,19 +128,15 @@
     $(document).ready(function() {
 
         $('#{{select_panel_name}}').select2({
+            width: '100%',
             ajax: {
-                url: 'https://jsonplaceholder.typicode.com/todos/1',
+                url: "{{ url_for('invoke_lambda_ids') }}",
                 processResults: function (data) {
                   // Transforms the top-level key of the response object from 'items' to 'results'
+                  const ids = data;
+                  const results = ids.map(id => ({ "id": id, "text": id }));
                   return {
-                    results: [
-                        {"id": 1, "text": "Producto 1"},
-                        {"id": 2, "text": "Producto 2"},
-                        {"id": 3, "text": "Producto 3"},
-                        {"id": 4, "text": "Producto 4"},
-                        {"id": 5, "text": "Producto 5"},
-                        {"id": 6, "text": "Producto 6"},
-                    ]
+                    results
                   };
                 }
               }
@@ -197,83 +195,72 @@
         });
         
         function load_data_for_charts(products_to_filter=[]){
-            var endpoint_xaldigital = 'https://jsonplaceholder.typicode.com/todos/1';
+            var endpoint_xaldigital = "{{ url_for('invoke_lambda_forecast') }}";
             if (products_to_filter.length > 0){
-                var product_list_commas = products_to_filter.join(',');
-                endpoint_xaldigital = "https://jsonplaceholder.typicode.com/todos/1/"+"?products="+product_list_commas;
-            }
-
-            console.log(endpoint_xaldigital)
-            
-            // Ajax for myChartForecastingBars
-            $.ajax({
-                url: endpoint_xaldigital,
-                type: 'get',
-                beforeSend: function(){
-                    show_loader($("#loading_forecasting_bars"))
-                }
-            })
-            .done(function(data) {
-                $("#loading_forecasting_bars").hide();
-                // fill depending on products in the response
-                
-                // Passing X Axis Data and creating Chart Instance
-                var labels = ["Jan 2024", "Jul 2024", "Aug 2024", "Sept 2024"];
-                datasets = [
-                    {
-                        label: 'Producto 1',
-                        data: [12, 19, 3, 5],
-                        backgroundColor: get_random_color()
-                    },
-                    {
-                        label: 'Producto 2',
-                        data: [20, 11, 30, 40],
-                        backgroundColor: get_random_color()
-                    }
-                ]
-
-                myChartForecastingBars.data.datasets = datasets;
-                myChartForecastingBars.data.labels = labels;
-                myChartForecastingBars.update();
-            })
-            .fail(function(jqXHR) {
-                console.log("data");
-            });
-
-            // Ajax for myChartForecastingBarsVertical
-            $.ajax({
-                    url: endpoint_xaldigital,
+                // Ajax for myChartForecastingBars
+                $.ajax({
+                    url: endpoint_xaldigital+"?ids="+products_to_filter.join(','),
                     type: 'get',
                     beforeSend: function(){
-                        show_loader($("#loading_forecasting_bars_vertical"))
-                    },
+                        show_loader($("#loading_forecasting_bars"))
+                    }
                 })
                 .done(function(data) {
-                    $("#loading_forecasting_bars_vertical").hide();
-                    
+                    $("#loading_forecasting_bars").hide();
                     // fill depending on products in the response
+                    
                     // Passing X Axis Data and creating Chart Instance
-                    var labels = ["Jan 2024", "Jul 2024", "Aug 2024", "Sept 2024"];
-                    datasets = [
-                        {
-                            label: 'Producto 1',
-                            data: [12, 19, 3, -80],
-                            backgroundColor: get_random_color()
-                        },
-                        {
-                            label: 'Producto 2',
-                            data: [-20, 11, -30, 40],
-                            backgroundColor: get_random_color()
-                        },
-                    ]
-
-                    myChartForecastingBarsVertical.data.datasets = datasets;
-                    myChartForecastingBarsVertical.data.labels = labels;
-                    myChartForecastingBarsVertical.update();
+                    var labels = data.labels;
+                    datasets = data.unique_ids_data
+    
+                    myChartForecastingBars.data.datasets = datasets;
+                    myChartForecastingBars.data.labels = labels;
+                    myChartForecastingBars.update();
                 })
                 .fail(function(jqXHR) {
                     console.log("data");
                 });
+    
+                // Ajax for myChartForecastingBarsVertical
+                $.ajax({
+                        url: endpoint_xaldigital+"?ids="+products_to_filter.join(','),
+                        type: 'get',
+                        beforeSend: function(){
+                            show_loader($("#loading_forecasting_bars_vertical"))
+                        },
+                    })
+                    .done(function(data) {
+                        $("#loading_forecasting_bars_vertical").hide();
+                        
+                        // fill depending on products in the response
+                        // Passing X Axis Data and creating Chart Instance
+                        var labels = ["Jan 2024", "Jul 2024", "Aug 2024", "Sept 2024"];
+                        datasets = [
+                            {
+                                label: 'Producto 1',
+                                data: [12, 19, 3, -80],
+                                backgroundColor: get_random_color()
+                            },
+                            {
+                                label: 'Producto 2',
+                                data: [-20, 11, -30, 40],
+                                backgroundColor: get_random_color()
+                            },
+                        ]
+    
+                        myChartForecastingBarsVertical.data.datasets = datasets;
+                        myChartForecastingBarsVertical.data.labels = labels;
+                        myChartForecastingBarsVertical.update();
+                    })
+                    .fail(function(jqXHR) {
+                        console.log("data");
+                    });
+            }else{
+                Swal.fire('Selecciona productos para generar la gráfica');
+            }
+            
+            
+            
         }
         
     });

@@ -316,10 +316,6 @@ $(document).ready(function() {
     function create_chart_instance(chartDivId, x_axis_values){
       var chart_instance = new Chart(chartDivId, {
         type: "line",
-        data: {
-          labels: x_axis_values,
-          datasets: []
-        },
         options: {
           responsive: true,
           plugins: {
@@ -336,9 +332,8 @@ $(document).ready(function() {
     }
 
     // Passing X Axis Data and creating Chart Instance
-    const x_values_historical_data = [100,200,300,400,500,600,700,800,900,1000];
-    var myChartHistoricalData = create_chart_instance("myChartDatosHistoricos", x_values_historical_data);
-    var myChartDatosPronosticados = create_chart_instance("myChartDatosPronosticados", x_values_historical_data);
+    var myChartHistoricalData = create_chart_instance("myChartDatosHistoricos");
+    var myChartDatosPronosticados = create_chart_instance("myChartDatosPronosticados");
 
     function load_custom_chart(chart_instance, endpoint_ml_model_result, loading_element_id){
       $.ajax(
@@ -349,49 +344,30 @@ $(document).ready(function() {
         })
       .done(function(data) {
           $("#"+loading_element_id).hide();
-          data = [
-              {"product_name": "Producto 1", "data": [10, 2, 30, 44,600, 800, 300]},
-              {"product_name": "Producto 2", "data": [10, 2, 50, 44,600, 800, 100]},
-              {"product_name": "Producto 3", "data": [10, 2, 80, 44,600, 800, 145]},
-              {"product_name": "Producto 4", "data": [4, 2, 120, 44,600, 800, 456]},
-              {"product_name": "Producto 5", "data": [10, 2, 30, 44,600, 800, 56]},
-              {"product_name": "Producto 6", "data": [5, 2, 30, 44,600, 800, 10]},
-              {"product_name": "Producto 7", "data": [10, 2, 500, 44,600, 1000, 266]},
-              {"product_name": "Producto 8", "data": [2, 2, 30, 44,600, 800, 677]},
-              {"product_name": "Producto 9", "data": [10, 2, 30, 44,600, 800, 500]},
-          ]
-
-          var custom_array_with_data_structure = [];
-
-          $.each(data, function(index, product_item_data) {
-              var color_random = get_random_color();
-              custom_array_with_data_structure.push({
-                label: product_item_data.product_name,
-                data: product_item_data.data,
-                borderColor: color_random,
-                backgroundColor: color_random,
-                fill: false
-              })
-          });
-          chart_instance.config.data.datasets = custom_array_with_data_structure;
+          chart_instance.config.data.datasets = data.unique_ids_data;
+          chart_instance.config.data.labels = data.labels;
           chart_instance.update();
       })
       .fail(function(jqXHR) {
         console.log("data");
       });
     }
+    
 
+    var endpoint_xaldigital_historical_data = "{{ url_for('invoke_lambda_historical') }}";
+    var endpoint_xaldigital_forecasted_data = "{{ url_for('invoke_lambda_forecasted_data') }}";
+    
     // Loading data for myChartHistoricalData chart
     load_custom_chart(
       myChartHistoricalData,
-      'https://jsonplaceholder.typicode.com/todos/1',
+      endpoint_xaldigital_historical_data+"?ids="+{{unique_ids}}.join(','),
       "loading_data_historical_data"
     );
 
     // Loading data for myChartDatosPronosticados chart
     load_custom_chart(
       myChartDatosPronosticados,
-      'https://jsonplaceholder.typicode.com/todos/1',
+      endpoint_xaldigital_forecasted_data+"?ids="+{{unique_ids}}.join(','),
       "loading_data_forecasted_data"
     );
 
