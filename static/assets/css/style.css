@@ -256,7 +256,7 @@ table tr:last-child td:last-child {
 }
 
 .showchart{
-    background: #FEE800;
+    background: #000000;
     margin-left: 10px;
     width: 200px;
     margin-bottom: 10px;
@@ -266,21 +266,7 @@ table tr:last-child td:last-child {
     line-height: 20px;
     letter-spacing: 0em;
     text-align: left;
-    color: #000000;
-}
-
-.showchart:hover{
-    background: #FEE800;
-    margin-left: 10px;
-    width: 200px;
-    margin-bottom: 10px;
-    font-family: Inter;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-    letter-spacing: 0em;
-    text-align: left;
-    color: #000000;
+    color: white;
 }
 
 #filter-zone{
@@ -370,7 +356,7 @@ table tr:last-child td:last-child {
 
 .applyfilter{
     margin-top:10px;
-    background: #FEE800;
+    background: #000000;
     margin-left: 10px;
     width: 140px;
     margin-bottom: 10px;
@@ -380,7 +366,7 @@ table tr:last-child td:last-child {
     line-height: 20px;
     letter-spacing: 0em;
     text-align: left;
-    color: #000000;
+    color: white;
 }
 
 .select2-selection__choice__remove:hover{
