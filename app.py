@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 
 app.secret_key = 'xaldigital!'
-COGNITO_REGION = 'us-east-1'
+COGNITO_REGION = os.getenv("region_aws")
 bucket_name = os.getenv("bucket_name")
 accessKeyId = os.getenv("accessKeyId")
 secretAccessKey = os.getenv("secretAccessKey")
@@ -88,7 +88,7 @@ def token_required(f):
     return decorated_function
 
 @app.route('/metricas_error')
-# @token_required
+@token_required
 def metricas_error():
     
     json_result = lamdba_metrics()
@@ -133,7 +133,7 @@ def metricas_error():
     )
 
 @app.route('/datoshistoricos')
-# @token_required
+@token_required
 def datos_historicos():
     return render_template(
         'historical_data_panel.html',
@@ -144,7 +144,7 @@ def datos_historicos():
     )
 
 @app.route('/datospronosticados')
-# @token_required
+@token_required
 def datos_pronosticados():
     return render_template(
         'forecasting_data_panel.html',
@@ -168,7 +168,7 @@ def lambda_get_ids_generic():
             return unique_ids
         return []
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return []
     
 def lamdba_insights():
     try:
@@ -181,7 +181,7 @@ def lamdba_insights():
             body = json.loads(result["body"])
             return body["content"]
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return "No hay datos disponibles para mostrar todavía."
     
 def lamdba_metrics():
     try:
@@ -192,10 +192,10 @@ def lamdba_metrics():
         result = json.loads(response_payload.decode('utf-8'))
         return result
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return {}
 
 @app.route('/')
-# @token_required
+@token_required
 def index():
     unique_ids = lambda_get_ids_generic()
     return render_template(
@@ -236,8 +236,6 @@ def login():
             # Invalid credentials, show error message
             return render_template('login/login.html', error="Nombre de usuario y Contraseña obligatorios")
     else:
-        accessKeyId = os.getenv("accessKeyId")
-        secretAccessKey = os.getenv("secretAccessKey")
         return render_template(
             'login/login.html',
             accessKeyId=accessKeyId,
@@ -270,8 +268,6 @@ def set_new_password():
         return render_template('login/login.html', error="Hubo un problema al asignar una nueva contraseña")
 
 def authenticate_user(username, password):
-    client_id_cognito =str(os.getenv("client_id"))
-    user_pool_cognito =str(os.getenv("user_pool"))
     try:
         response = cognito_client.admin_initiate_auth(
             AuthFlow='ADMIN_NO_SRP_AUTH',
@@ -386,8 +382,7 @@ def invoke_lambda_forecast():
         result_list = list(result.values())
         return {"unique_ids_data": result_list, "labels": ds_list}
     except Exception as e:
-        print("error sadjkashd", e)
-        return jsonify({'error': str(e)})
+        return {"unique_ids_data": [], "labels": []}
 
 
 @app.route('/invoke_lambda_historical', methods=["GET"])
