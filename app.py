@@ -34,6 +34,7 @@ user_pool_cognito =str(os.getenv("user_pool"))
 def upload_to_server():
     # Get the file from the request
     file = request.files['file']
+    print("file: ", file)
 
     # Upload the file to S3
     s3 = boto3.client(

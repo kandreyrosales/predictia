@@ -201,18 +201,12 @@ $(document).ready(function() {
           url: '{{ url_for('upload_to_server') }}',
           type: 'POST',
           data: file,
-          processData: false,
-          contentType: false,
-          success: function(response){
-            console.log(response)
-            Swal.fire(response);
-          },
-          error: function(xhr, status, error){
-            console.log(response)
-            console.log(status)
-            console.log(error)
-            Swal.fire(error);
-          }
+        })
+        .done(function(data) {
+          Swal.fire(data);
+        })
+        .fail(function(jqXHR) {
+          Swal.fire("Error subiendo el archivo al servidor");
       });
 
     });
