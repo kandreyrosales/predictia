@@ -19,6 +19,8 @@ arn_forecast_lambda=os.getenv("lambda_forecast_arn")
 arn_ids_lambda=os.getenv("lambda_get_ids_arn")
 arn_insights_lambda=os.getenv("lambda_get_insights")
 arn_metrics_lambda=os.getenv("lambda_get_metrics")
+client_id_cognito =str(os.getenv("client_id"))
+user_pool_cognito =str(os.getenv("user_pool"))
 
 cognito_client = boto3.client(
     'cognito-idp', 
@@ -27,8 +29,17 @@ cognito_client = boto3.client(
     aws_secret_access_key=secretAccessKey
 )
 
-client_id_cognito =str(os.getenv("client_id"))
-user_pool_cognito =str(os.getenv("user_pool"))
+def lamdba_metrics():
+    try:
+        response = lambda_client.invoke(FunctionName=arn_metrics_lambda, InvocationType='RequestResponse')
+        # Process the response from Lambda
+        # For example, you can extract data from the response and return it as JSON
+        response_payload = response['Payload'].read()
+        result = json.loads(response_payload.decode('utf-8'))
+        return result
+    except Exception as e:
+        print(e)
+        return {}
 
 @app.route('/upload_to_server', methods=['POST'])
 def upload_to_server():
@@ -83,7 +94,6 @@ def token_required(f):
 @app.route('/metricas_error')
 @token_required
 def metricas_error():
-    
     json_result = lamdba_metrics()
     mape_avg = round(json_result.get("average_mape", 0), 2) if json_result else 0
     mape_last_month = 0
@@ -172,17 +182,6 @@ def lamdba_insights():
         return "No hay datos disponibles para mostrar todavía."
     except Exception as e:
         return "No hay datos disponibles para mostrar todavía."
-    
-def lamdba_metrics():
-    try:
-        response = lambda_client.invoke(FunctionName=arn_metrics_lambda, InvocationType='RequestResponse')
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
-        response_payload = response['Payload'].read()
-        result = json.loads(response_payload.decode('utf-8'))
-        return result
-    except Exception as e:
-        return {}
 
 @app.route('/')
 @token_required
