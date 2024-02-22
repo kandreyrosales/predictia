@@ -197,11 +197,10 @@ def lamdba_metrics():
 @app.route('/')
 # @token_required
 def index():
-    bucket_name = str(os.getenv("bucket_name"))
     unique_ids = lambda_get_ids_generic()
     return render_template(
         'index.html',
-        bucket_name="predictiaxaldigital",
+        bucket_name=bucket_name,
         accessKeyId=accessKeyId,
         secretAccessKey=secretAccessKey,
         unique_ids = unique_ids,
@@ -442,7 +441,7 @@ def invoke_lambda_historical():
         result_list = list(result.values())
         return {"unique_ids_data": result_list, "labels": ds_list}
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return {"unique_ids_data": [], "labels": []}
 
 
 @app.route('/invoke_lambda_forecasted_data', methods=["GET"])
@@ -525,4 +524,4 @@ def invoke_lambda_forecasted_data():
         result_list = list(result_historical_data.values()) + list(result_forecast.values())
         return {"unique_ids_data": result_list, "labels": sorted_general_labels}
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return {"unique_ids_data": [], "labels": []}

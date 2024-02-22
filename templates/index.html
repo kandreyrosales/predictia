@@ -205,11 +205,16 @@ $(document).ready(function() {
           data: formData,
           processData: false,
           contentType: false,
+          beforeSend: function(){
+            Swal.fire("Subiendo archivo al servidor...");
+          }
         })
         .done(function(data) {
+          Swal.close();
           Swal.fire(data);
         })
         .fail(function(jqXHR) {
+          Swal.close();
           Swal.fire("Error subiendo el archivo al servidor");
       });
 
@@ -326,6 +331,7 @@ $(document).ready(function() {
         })
       .done(function(data) {
           $("#"+loading_element_id).hide();
+          if ()
           chart_instance.config.data.datasets = data.unique_ids_data;
           chart_instance.config.data.labels = data.labels;
           chart_instance.update();
