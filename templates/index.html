@@ -197,51 +197,31 @@ $(document).ready(function() {
             return;
         }
 
-        var key1 = "{{ accessKeyId }}"
-        var key2 = "{{ secretAccessKey }}"
+        $.ajax({
+          url: '{{ url_for('upload_to_server') }}',
+          type: 'POST',
+          data: file,
+          processData: false,
+          contentType: false,
+          success: function(response){
+            Swal.fire(response);
+          },
+          error: function(xhr, status, error){
+            Swal.fire(error);
+          }
+      });
 
-        // Configura las credenciales de AWS
-        AWS.config.update({
-            accessKeyId: key1,
-            secretAccessKey: key2
-        });
-
-        // Configura el bucket de S3 y el nombre del archivo en S3
-        var bucketName = "{{ bucket_name }}"
-        var key = file.name;
-
-        var s3 = new AWS.S3();
-
-        // Request params setup
-        var params = {
-            Bucket: bucketName,
-            Key: key,
-            Body: file,
-            ACL: 'private' // Opcional: configurar permisos de acceso del objeto
-        };
-
-        // Send file to AWS S3
-        s3.upload(params, function(err, data) {
-            if (err) {
-                Swal.fire('Error al subir el archivo a AWS S3: '+err);
-            } else {
-                Swal.fire('Archivo subido exitosamente al servidor. URL del archivo: ' + data.Location);
-            }
-        });
     });
 
   function arraysAreEqual(arr1, arr2) {
-      console.log(arr1, arr2)
       if (arr1.length !== arr2.length) {
           return false;
       }
-  
       for (var i = 0; i < arr1.length; i++) {
           if (arr1[i] !== arr2[i]) {
               return false;
           }
       }
-  
       return true;
   }
 

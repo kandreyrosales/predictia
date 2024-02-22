@@ -12,6 +12,7 @@ app = Flask(__name__)
 
 app.secret_key = 'xaldigital!'
 COGNITO_REGION = 'us-east-1'
+bucket_name = os.getenv("bucket_name")
 accessKeyId = os.getenv("accessKeyId")
 secretAccessKey = os.getenv("secretAccessKey")
 arn_forecast_lambda=os.getenv("lambda_forecast_arn")
@@ -28,6 +29,24 @@ cognito_client = boto3.client(
 
 client_id_cognito =str(os.getenv("client_id"))
 user_pool_cognito =str(os.getenv("user_pool"))
+
+@app.route('/upload_to_server', methods=['POST'])
+def upload_to_server():
+    # Get the file from the request
+    file = request.files['file']
+
+    # Upload the file to S3
+    s3 = boto3.client(
+        's3', 
+        region_name=COGNITO_REGION, 
+        aws_access_key_id=accessKeyId,
+        aws_secret_access_key=secretAccessKey
+    )
+    try:
+        s3.upload_fileobj(file, bucket_name, file.filename)
+        return 'Archivo subido exitosamente!'
+    except Exception as e:
+        return str(e)
 
 def generate_chart_colors(num_colors):
     # Generate evenly spaced hues
@@ -66,9 +85,9 @@ def token_required(f):
 
     return decorated_function
 
-@app.route('/panel-precision-pronotiscos')
+@app.route('/metricas_error')
 # @token_required
-def panel_precision_pronosticos():
+def metricas_error():
     
     json_result = lamdba_metrics()
     mape_avg = round(json_result.get("average_mape", 0), 2) if json_result else 0
@@ -94,9 +113,6 @@ def panel_precision_pronosticos():
         colors = ["rgba(127, 127, 127, 1)" if b < 0 else "rgba(254, 232, 0, 1)" for b in bias_data_list]
         bias_data = {"labels": bias_labels, "datasets": [{"label": "BIAS", "data": bias_data_list, 'borderColor': colors, 'backgroundColor': colors}]}
         bias_last_month = round(bias_data_list[-1], 2)
-    
-    print(bias_data)
-    print(bias_labels)
 
     return render_template(
         'forecasting_panel.html',

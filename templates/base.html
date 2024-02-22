@@ -35,21 +35,15 @@
     </div>
     <p class="titlesectionsidebar">Inicio</p>
     <ul>
-      <li>
-        <a href="#" class="itemsidebar">Visión general</a>
-      </li>
+      <a href="{{ url_for('index') }}" class="itemsidebar">Visión general</a>
     </ul>
     <p class="titlesectionsidebar">Predicciones</p>
     <ul>
-      <li>
-        <a href="#" class="itemsidebar">Métricas de error</a>
-      </li>
+      <a href="{{ url_for('metricas_error') }}" class="itemsidebar"><i class="bi bi-graph-up"></i> Métricas de error</a>
     </ul>
     <p class="titlesectionsidebar">Sesión</p>
-    <ul>
-        <li>
-          <a href="{{ url_for('logout') }}" class="itemsidebar">Cerrar sesión</a>
-        </li>
+    <ul>  
+      <a href="{{ url_for('logout') }}" type="button" class="itemsidebar"><i class="bi bi-door-closed"></i>Cerrar sesión</a>
     </ul>
     <div style="text-align:center;margin-top: 300px">
       <div>
