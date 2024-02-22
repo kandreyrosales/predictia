@@ -1,3 +1,4 @@
+import os
 import boto3
 import pandas as pd
 from io import StringIO
@@ -6,7 +7,7 @@ from io import StringIO
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    bucket_name = 'testing-tony-temp'  # Change this to your bucket name
+    bucket_name = os.getenv("BUCKET_NAME")  # Change this to your bucket name
     file_key = 'forecast_mape_bias.csv'  # Change this to your file path in S3
 
     # Get the file from S3

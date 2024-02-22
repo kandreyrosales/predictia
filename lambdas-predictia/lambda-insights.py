@@ -1,3 +1,4 @@
+import os
 import boto3
 import json
 
@@ -6,7 +7,7 @@ s3_client = boto3.client('s3')
 
 def lambda_handler(event, context):
     # Especificar el nombre del bucket y la clave del archivo
-    bucket_name = 'testing-tony-temp'  # Reemplaza con el nombre de tu bucket
+    bucket_name = os.getenv("BUCKET_NAME")  # Reemplaza con el nombre de tu bucket
     file_key = 'insights.txt'  # Reemplaza con la clave del archivo en S3
 
     # Obtener el archivo de S3

@@ -3,6 +3,7 @@ import random
 import json
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import boto3
+import colorsys
 import jwt
 from datetime import datetime
 from functools import wraps
@@ -15,6 +16,8 @@ accessKeyId = os.getenv("accessKeyId")
 secretAccessKey = os.getenv("secretAccessKey")
 arn_forecast_lambda=os.getenv("lambda_forecast_arn")
 arn_ids_lambda=os.getenv("lambda_get_ids_arn")
+arn_insights_lambda=os.getenv("lambda_get_insights")
+arn_metrics_lambda=os.getenv("lambda_get_metrics")
 
 cognito_client = boto3.client(
     'cognito-idp', 
@@ -26,10 +29,20 @@ cognito_client = boto3.client(
 client_id_cognito =str(os.getenv("client_id"))
 user_pool_cognito =str(os.getenv("user_pool"))
 
-def random_color_rgb():
-  """Generates a random RGB color tuple."""
-  color_generated = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-  return f"rgba{color_generated}"
+def generate_chart_colors(num_colors):
+    # Generate evenly spaced hues
+    hues = [i / num_colors for i in range(num_colors)]
+    saturation = 0.7  # Adjust saturation and value to get desired colorfulness
+    value = 0.9
+
+    # Convert HSL colors to RGB
+    colors = [colorsys.hsv_to_rgb(hue, saturation, value) for hue in hues]
+
+    # Scale RGB values to the range [0, 255]
+    colors = [f"rgba{(int(r * 255), int(g * 255), int(b * 255))}" for (r, g, b) in colors]
+
+
+    return colors
 
 def token_required(f):
     @wraps(f)
@@ -56,12 +69,49 @@ def token_required(f):
 @app.route('/panel-precision-pronotiscos')
 # @token_required
 def panel_precision_pronosticos():
+    
+    json_result = lamdba_metrics()
+    mape_avg = round(json_result.get("average_mape", 0), 2) if json_result else 0
+    mape_last_month = 0
+    bias_avg = round(json_result.get("average_bias", 0), 2) if json_result else 0
+    bias_last_month= 0
+
+    mape_data_labels = []
+    mape_data = []
+
+    bias_labels = []
+    bias_data = []
+    
+    if json_result:
+        mape_data_list = list(json_result["mape_values_by_month"].values())
+        mape_data_labels = list(json_result["mape_values_by_month"].keys())
+        mape_data = {"labels": mape_data_labels, "datasets": [{"label": "MAPE", "data": mape_data_list, "backgroundColor": "rgba(254, 232, 0, 1)"}]}
+        mape_last_month = round(mape_data_list[-1], 2)
+        
+        bias_data_list = list(json_result["bias_values_by_month"].values())
+        bias_labels = list(json_result["bias_values_by_month"].keys())
+        
+        colors = ["rgba(127, 127, 127, 1)" if b < 0 else "rgba(254, 232, 0, 1)" for b in bias_data_list]
+        bias_data = {"labels": bias_labels, "datasets": [{"label": "BIAS", "data": bias_data_list, 'borderColor': colors, 'backgroundColor': colors}]}
+        bias_last_month = round(bias_data_list[-1], 2)
+    
+    print(bias_data)
+    print(bias_labels)
+
     return render_template(
         'forecasting_panel.html',
         select_panel_name="select_forecasting_panel",
         boxname="Panel de Precisión de Pronósticos",
         accessKeyId=accessKeyId,
-        secretAccessKey=secretAccessKey
+        secretAccessKey=secretAccessKey,
+        mape_avg=mape_avg,
+        mape_last_month=mape_last_month,
+        bias_avg=bias_avg,
+        bias_last_month=bias_last_month,
+        mape_data_labels=mape_data_labels,
+        mape_data=mape_data,
+        bias_labels=bias_labels,
+        bias_data=bias_data
     )
 
 @app.route('/datoshistoricos')
@@ -101,6 +151,30 @@ def lambda_get_ids_generic():
         return []
     except Exception as e:
         return jsonify({'error': str(e)})
+    
+def lamdba_insights():
+    try:
+        response = lambda_client.invoke(FunctionName=arn_insights_lambda, InvocationType='RequestResponse')
+        # Process the response from Lambda
+        # For example, you can extract data from the response and return it as JSON
+        response_payload = response['Payload'].read()
+        result = json.loads(response_payload.decode('utf-8'))
+        if result.get("statusCode") == 200:
+            body = json.loads(result["body"])
+            return body["content"]
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+def lamdba_metrics():
+    try:
+        response = lambda_client.invoke(FunctionName=arn_metrics_lambda, InvocationType='RequestResponse')
+        # Process the response from Lambda
+        # For example, you can extract data from the response and return it as JSON
+        response_payload = response['Payload'].read()
+        result = json.loads(response_payload.decode('utf-8'))
+        return result
+    except Exception as e:
+        return jsonify({'error': str(e)})
 
 @app.route('/')
 # @token_required
@@ -112,7 +186,8 @@ def index():
         bucket_name="predictiaxaldigital",
         accessKeyId=accessKeyId,
         secretAccessKey=secretAccessKey,
-        unique_ids = unique_ids
+        unique_ids = unique_ids,
+        info_text_insights = lamdba_insights()
     )
 
 
@@ -232,6 +307,21 @@ def invoke_lambda_ids():
         return jsonify({'error': str(e)})
     
 
+@app.route('/invoke_lambda_metrics', methods=["GET"])
+def invoke_lambda_metrics():
+    try:
+        response = lambda_client.invoke(FunctionName=arn_metrics_lambda, InvocationType='RequestResponse')
+        # Process the response from Lambda
+        # For example, you can extract data from the response and return it as JSON
+        response_payload = response['Payload'].read()
+        result = json.loads(response_payload.decode('utf-8'))
+        if result.get("statusCode") == 200:
+            body = json.loads(result["body"])
+            return body["unique_ids"]
+    except Exception as e:
+        return jsonify({'error': str(e)})
+    
+
 @app.route('/invoke_lambda_forecast', methods=["GET"])
 def invoke_lambda_forecast():
     unique_ids = request.args.get('ids')
@@ -253,6 +343,10 @@ def invoke_lambda_forecast():
         # Initialize a list to store all ds values
         ds_list = []
 
+        num_colors = len(unique_ids.split(","))
+        chart_colors = generate_chart_colors(num_colors)
+        counter_colors = 0
+
         # Iterate through each item in data_list
         for item in data_list:
             unique_id = item['unique_id']
@@ -267,7 +361,9 @@ def invoke_lambda_forecast():
             if unique_id in result:
                 result[unique_id]['data'].append(y_value)
             else:
-                result[unique_id] = {'label': unique_id, 'data': [y_value], "backgroundColor": random_color_rgb()}
+                color_selected = chart_colors[counter_colors]
+                result[unique_id] = {'label': unique_id, 'data': [y_value], "backgroundColor": color_selected()}
+                counter_colors += 1
 
         # Transform result dictionary to a list of dictionaries
         result_list = list(result.values())
@@ -296,6 +392,9 @@ def invoke_lambda_historical():
         # Initialize a list to store all ds values
         ds_list = []
 
+        num_colors = len(unique_ids.split(","))
+        chart_colors = generate_chart_colors(num_colors)
+        counter_colors = 0
         # Iterate through each item in data_list
         for item in data_list:
             if item["type"] != "forecast":
@@ -311,14 +410,15 @@ def invoke_lambda_historical():
                 if unique_id in result:
                     result[unique_id]['data'].append(y_value)
                 else:
-                    random_color = random_color_rgb()
+                    color_selected = chart_colors[counter_colors]
                     result[unique_id] = {
                             'label': str(unique_id), 
                             'data': [y_value], 
-                            'backgroundColor': random_color,
-                            'borderColor': random_color,
+                            'backgroundColor': color_selected,
+                            'borderColor': color_selected,
                             'fill': False
                         }
+                    counter_colors += 1
 
         # Transform result dictionary to a list of dictionaries
         result_list = list(result.values())
@@ -354,8 +454,10 @@ def invoke_lambda_forecasted_data():
         general_label = []
 
         # Iterate through each item in data_list
+        num_colors = len(unique_ids.split(","))
+        chart_colors = generate_chart_colors(num_colors)
+        counter_colors = 0
         for item in data_list:
-            random_color = random_color_rgb()
             unique_id = item['unique_id']
             y_value = item['y']
             ds_value = item['ds'].strip()  # Remove leading/trailing whitespace
@@ -369,10 +471,10 @@ def invoke_lambda_forecasted_data():
                     result_forecast[unique_id] = {
                             'label': str(unique_id), 
                             'data': [y_value], 
-                            'backgroundColor': random_color,
-                            'borderColor': random_color,
+                            'backgroundColor': result_historical_data[unique_id]['backgroundColor'],
+                            'borderColor': result_historical_data[unique_id]['backgroundColor'],
                             'fill': False,
-                            'borderDash': [10,5]
+                            'borderDash': [5,5],
                         }
             else:
                 # Append ds_value to ds_list if it's not already there
@@ -383,13 +485,15 @@ def invoke_lambda_forecasted_data():
                 if unique_id in result_historical_data:
                     result_historical_data[unique_id]['data'].append(y_value)
                 else:
+                    color_selected = chart_colors[counter_colors]
                     result_historical_data[unique_id] = {
                             'label': str(unique_id), 
                             'data': [y_value], 
-                            'backgroundColor': random_color,
-                            'borderColor': random_color,
+                            'backgroundColor': color_selected,
+                            'borderColor': color_selected,
                             'fill': False,
                         }
+                    counter_colors += 1
         sorted_general_labels = sorted(list(set(general_label)))
 
         for key, value in result_forecast.items():
