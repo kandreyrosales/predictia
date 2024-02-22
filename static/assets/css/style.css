@@ -394,8 +394,8 @@ table tr:last-child td:last-child {
 }
 
 .button_login, .button_login:hover{
-    background-color: #FEE800;
-    color: #000000;
+    background-color: #000000;
+    color: white;
     font-family: Bebas Neue;
     font-size: 18px;
     font-weight: 400;
