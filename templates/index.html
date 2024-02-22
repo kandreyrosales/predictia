@@ -204,9 +204,13 @@ $(document).ready(function() {
           processData: false,
           contentType: false,
           success: function(response){
+            console.log(response)
             Swal.fire(response);
           },
           error: function(xhr, status, error){
+            console.log(response)
+            console.log(status)
+            console.log(error)
             Swal.fire(error);
           }
       });

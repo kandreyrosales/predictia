@@ -46,6 +46,7 @@ def upload_to_server():
         s3.upload_fileobj(file, bucket_name, file.filename)
         return 'Archivo subido exitosamente!'
     except Exception as e:
+        print(e)
         return str(e)
 
 def generate_chart_colors(num_colors):
