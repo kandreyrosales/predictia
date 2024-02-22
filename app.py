@@ -180,6 +180,7 @@ def lamdba_insights():
         if result.get("statusCode") == 200:
             body = json.loads(result["body"])
             return body["content"]
+        return "No hay datos disponibles para mostrar todavía."
     except Exception as e:
         return "No hay datos disponibles para mostrar todavía."
     
