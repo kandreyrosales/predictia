@@ -92,17 +92,12 @@ def token_required(f):
 @app.route('/metricas_error')
 @token_required
 def metricas_error():
-    json_result = lamdba_metrics()
-    mape_avg = round(json_result.get("average_mape", 0), 2) if len(json_result) else 0
-    mape_last_month = 0
-    bias_avg = round(json_result.get("average_bias", 0), 2) if len(json_result) else 0
-    bias_last_month= 0
-    mape_data_labels = []
-    mape_data = []
-    bias_labels = []
-    bias_data = []
     
-    if len(json_result):
+    try:
+        json_result = lamdba_metrics()
+        mape_avg = round(json_result.get("average_mape", 0), 2)
+        mape_last_month = 0
+        bias_avg = round(json_result.get("average_bias", 0), 2)
         mape_data_list = list(json_result["mape_values_by_month"].values())
         mape_data_labels = list(json_result["mape_values_by_month"].keys())
         mape_data = {"labels": mape_data_labels, "datasets": [{"label": "MAPE", "data": mape_data_list, "backgroundColor": "rgba(254, 232, 0, 1)"}]}
@@ -112,6 +107,15 @@ def metricas_error():
         colors = ["rgba(127, 127, 127, 1)" if b < 0 else "rgba(254, 232, 0, 1)" for b in bias_data_list]
         bias_data = {"labels": bias_labels, "datasets": [{"label": "BIAS", "data": bias_data_list, 'borderColor': colors, 'backgroundColor': colors}]}
         bias_last_month = round(bias_data_list[-1], 2)
+    except Exception as e:
+        mape_avg =  0
+        mape_last_month = 0
+        bias_avg = 0
+        bias_last_month= 0
+        mape_data_labels = []
+        mape_data = []
+        bias_labels = []
+        bias_data = []
 
     return render_template(
         'forecasting_panel.html',
