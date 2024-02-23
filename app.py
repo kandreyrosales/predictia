@@ -86,8 +86,6 @@ def token_required(f):
                 return render_template('login/login.html', error="Sesión Expirada")
         except jwt.ExpiredSignatureError:
             return render_template('login/login.html', error="Sesión Expirada")
-        except Exception as e:
-            return render_template('login/login.html', error=e)
 
     return decorated_function
 
