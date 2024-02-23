@@ -92,7 +92,7 @@ def token_required(f):
     return decorated_function
 
 @app.route('/metricas_error')
-# @token_required
+@token_required
 def metricas_error():
     json_result = lamdba_metrics()
     mape_avg = round(json_result.get("average_mape", 0), 2) if len(json_result) else 0
