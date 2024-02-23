@@ -32,13 +32,10 @@ cognito_client = boto3.client(
 def lamdba_metrics():
     try:
         response = lambda_client.invoke(FunctionName=arn_metrics_lambda, InvocationType='RequestResponse')
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         return result
     except Exception as e:
-        print(e)
         return {}
 
 @app.route('/upload_to_server', methods=['POST'])
@@ -86,13 +83,11 @@ def token_required(f):
                 return render_template('login/login.html', error="Sesión Expirada")
         except jwt.ExpiredSignatureError:
             return render_template('login/login.html', error="Sesión Expirada")
-
     return decorated_function
 
 @app.route('/metricas_error')
 @token_required
 def metricas_error():
-    
     try:
         json_result = lamdba_metrics()
         mape_avg = round(json_result.get("average_mape", 0), 2)
@@ -158,8 +153,6 @@ def datos_pronosticados():
 def lambda_get_ids_generic():
     try:
         response = lambda_client.invoke(FunctionName=arn_ids_lambda, InvocationType='RequestResponse')
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         unique_ids = []
@@ -174,8 +167,6 @@ def lambda_get_ids_generic():
 def lamdba_insights():
     try:
         response = lambda_client.invoke(FunctionName=arn_insights_lambda, InvocationType='RequestResponse')
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         if result.get("statusCode") == 200:
@@ -241,7 +232,6 @@ def set_new_password():
     username = request.form['username']
     new_password = request.form['new_password']
     session_data=request.form['session']
-    
     try:
         response = cognito_client.respond_to_auth_challenge(
             ClientId=client_id_cognito,  # Replace 'your-client-id' with your Cognito app client ID
@@ -253,7 +243,6 @@ def set_new_password():
             }
         )
         return redirect(url_for('index'))
-
     except cognito_client.exceptions.NotAuthorizedException as e:
         # Handle authentication failure
         return render_template('login/login.html', error="Hubo un problema al asignar una nueva contraseña")
@@ -303,8 +292,6 @@ lambda_client = boto3.client(
 def invoke_lambda_ids():
     try:
         response = lambda_client.invoke(FunctionName=arn_ids_lambda, InvocationType='RequestResponse')
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         if result.get("statusCode") == 200:
@@ -318,8 +305,6 @@ def invoke_lambda_ids():
 def invoke_lambda_metrics():
     try:
         response = lambda_client.invoke(FunctionName=arn_metrics_lambda, InvocationType='RequestResponse')
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         if result.get("statusCode") == 200:
@@ -335,8 +320,6 @@ def invoke_lambda_forecast():
     payload = json.dumps({"unique_ids": unique_ids.split(",")})
     try:
         response = lambda_client.invoke(FunctionName=arn_forecast_lambda, InvocationType='RequestResponse', Payload=payload)
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         body = json.loads(result["body"])
@@ -441,8 +424,6 @@ def invoke_lambda_forecasted_data():
     payload = json.dumps({"unique_ids": unique_ids.split(",")})
     try:
         response = lambda_client.invoke(FunctionName=arn_forecast_lambda, InvocationType='RequestResponse', Payload=payload)
-        # Process the response from Lambda
-        # For example, you can extract data from the response and return it as JSON
         response_payload = response['Payload'].read()
         result = json.loads(response_payload.decode('utf-8'))
         body = json.loads(result["body"])
@@ -499,7 +480,6 @@ def invoke_lambda_forecasted_data():
                         }
                     counter_colors += 1
         sorted_general_labels = sorted(list(set(general_label)))
-
         for key, value in result_forecast.items():
             size_actual_data = len(value["data"])
             size_historical_data = len(sorted_general_labels)
@@ -507,7 +487,6 @@ def invoke_lambda_forecasted_data():
             actual_data = value["data"]
             if size_actual_data < size_historical_data:
                 result_forecast[key]["data"] = [None] * result_size + actual_data
-        # Transform result dictionary to a list of dictionaries
         result_list = list(result_historical_data.values()) + list(result_forecast.values())
         return {"unique_ids_data": result_list, "labels": sorted_general_labels}
     except Exception as e:

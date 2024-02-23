@@ -26,4 +26,3 @@ utils/terraform.tfstate
 utils/terraform.tfstate.backup
 .terraform/
 .DS_Store
-utils/terraform_ec2_flask.tf

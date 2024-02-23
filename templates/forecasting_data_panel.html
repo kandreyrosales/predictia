@@ -39,8 +39,7 @@
                 processResults: function (data) {
                   // Transforms the top-level key of the response object from 'items' to 'results'
                   const ids = data;
-                  const results = ids.map(id => ({ "id": id, "text": `Producto ${id}` }));
-                  console.log(results);
+                  const results = ids.map(id => ({ "id": id, "text": id }));
                   return {
                     results
                   };

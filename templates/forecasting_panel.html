@@ -86,6 +86,11 @@
             type: "bar",
             data: {{mape_data|tojson}},
             options: {
+                plugins: {
+                    legend: {
+                        display: false,
+                     } 
+                },
                 responsive: true,
                 scales: {
                     y: {
@@ -107,7 +112,7 @@
                 responsive: true,
                 plugins: {
                     legend: {
-                    position: 'top',
+                        display: false,
                 }
             }
         }
