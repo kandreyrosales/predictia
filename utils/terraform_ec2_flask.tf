@@ -5,6 +5,7 @@ provider "aws" {
 resource "aws_cognito_user_pool" "predictia" {
   name = "predictia-user-pool"
   # Enable admin user password authentication
+  
 }
 
 resource "aws_cognito_user_pool_client" "predictiacognito_client" {
@@ -12,6 +13,7 @@ resource "aws_cognito_user_pool_client" "predictiacognito_client" {
   user_pool_id = aws_cognito_user_pool.predictia.id
   # Configure other settings as needed
   explicit_auth_flows = ["ALLOW_USER_SRP_AUTH", "ALLOW_USER_PASSWORD_AUTH", "ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
+  access_token_validity =  3
 }
 
 # Create ZIP archive of Lambda function code
