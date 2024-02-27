@@ -22,12 +22,7 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 client_id_cognito =str(os.getenv("client_id"))
 user_pool_cognito =str(os.getenv("user_pool"))
 
-cognito_client = boto3.client(
-    'cognito-idp', 
-    region_name=COGNITO_REGION, 
-    aws_access_key_id=accessKeyId,
-    aws_secret_access_key=secretAccessKey
-)
+cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
 
 def lamdba_metrics():
     try:
@@ -202,7 +197,7 @@ def login():
         if username and password:
             cognito_response = authenticate_user(username, password)
             if cognito_response.get("reason") is not None:
-                return render_template('login/login.html', error=cognito_response.get("error_info"))
+                return render_template('login/login.html', error=cognito_response.get("reason"))
             else:
                 challenge_name = cognito_response.get('ChallengeName', None)
                 if challenge_name == 'NEW_PASSWORD_REQUIRED':
