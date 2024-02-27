@@ -81,13 +81,18 @@
             <!-- Table body will be dynamically filled here -->
             </tbody>
           </table>
+
+          <div class="form-group" style="margin-top:10px">
+            <input type="number" class="form-control" id="forecast_days" aria-describedby="forecast_days" placeholder="Ingresa días para el pronóstico" required>
+          </div>
           <button type="button" class="btn" id="btnsendfile" style="margin-top:10px; display: none">
             <span class="bi bi-send"> Enviar </span>
           </button>
+
         </div>
 
         <div class="row" style="margin-top:20px">
-          <span id="analisis_information_text" cla>{{info_text_insights}}</span>
+          <span id="analisis_information_text">{{info_text_insights}}</span>
         </div>
       </div>
 
@@ -149,10 +154,18 @@ dropArea.addEventListener('drop', (e) => {
     if (files[0].type === 'text/csv' || files[0].name.toLowerCase().endsWith('.csv')){
       handleFiles(files);
     }else{
-      Swal.fire('Solo se permiten cargar archivos con formato CSV');
+      Swal.fire({
+        title: "Información",
+        text: 'Solo se permiten cargar archivos con formato CSV',
+        confirmButtonColor: '#000000',
+      });
     }
   }else{
-    Swal.fire('Solo se permite cargar 1 archivo a la vez');
+    Swal.fire({
+      title: "Información",
+      text: 'Solo se permite cargar 1 archivo a la vez',
+      confirmButtonColor: '#000000',
+    });
   }
 
 
@@ -195,7 +208,11 @@ $(document).ready(function() {
         formData.append('file', $('#fileInput')[0].files[0]);
 
         if (!file) {
-            Swal.fire('Por favor selecciona un archivo.');
+            Swal.fire({
+              title: "Información",
+              text: 'Por favor selecciona un archivo',
+              confirmButtonColor: '#000000',
+            });
             return;
         }
 
@@ -206,16 +223,28 @@ $(document).ready(function() {
           processData: false,
           contentType: false,
           beforeSend: function(){
-            Swal.fire("Subiendo archivo al servidor...");
+            Swal.fire({
+              title: "Información",
+              text: "Subiendo archivo al servidor...",
+              confirmButtonColor: '#000000',
+            });
           }
         })
         .done(function(data) {
           Swal.close();
-          Swal.fire(data);
+          Swal.fire({
+            title: "Información",
+            text: data,
+            confirmButtonColor: '#000000',
+          });
         })
         .fail(function(jqXHR) {
           Swal.close();
-          Swal.fire("Error subiendo el archivo al servidor");
+          Swal.fire({
+            title: "Error",
+            text: "Error subiendo el archivo al servidor",
+            confirmButtonColor: '#000000',
+          });
       });
 
     });
@@ -271,18 +300,30 @@ $(document).ready(function() {
                       $("#btnsendfile").show();
                   }else{
                     clean_fileinput();
-                    Swal.fire("El archivo CSV debe tener 3 cabeceras: unique_id, ds, y");
+                    Swal.fire({
+                      title: "Información",
+                      text: "El archivo CSV debe tener 3 cabeceras: unique_id, ds, y",
+                      confirmButtonColor: '#000000',
+                    });
                   }
               }else{
                 clean_fileinput();
-                Swal.fire('El archivo CSV está vacío');
+                Swal.fire({
+                  title: "Información",
+                  text: 'El archivo CSV está vacío',
+                  confirmButtonColor: '#000000',
+                });
               }
           };
           // Read only the first portion of the file (up to the first newline character after the fifth line)
           var blob = file.slice(0, 1024 * 1024); // Read up to 1MB of data
           reader.readAsText(blob);
       }else{
-        Swal.fire("No ha sido seleccionado ningun archivo");
+        Swal.fire({
+          title: "Información",
+          text: "No ha sido seleccionado ningun archivo",
+          confirmButtonColor: '#000000',
+        });
       }
     });
 });

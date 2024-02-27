@@ -267,9 +267,11 @@ def authenticate_user(username, password):
         )
         return response
     except cognito_client.exceptions.NotAuthorizedException as e:
+        print("NotAuthorizedException ",e)
         # Handle invalid credentials
         return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     except Exception as e:
+        print("General Error ", e)
         # Handle other errors
         return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     

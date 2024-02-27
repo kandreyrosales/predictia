@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_cognito_user_pool" "predictia" {
-  name = "predictia-user-pool"
+  name = "${var.cognito_pool_name}"
   # Enable admin user password authentication
   
 }
@@ -92,6 +92,22 @@ resource "aws_lambda_function" "lambdametrics" {
   }
 }
 
+# Define Lambda function lambda-metrics
+resource "aws_lambda_function" "lambdasendemail" { 
+  function_name    = "lambda-email"
+  role             = aws_iam_role.lambda_role.arn
+  handler          = "lambda-sendemail.lambda_handler"
+  runtime          = "python3.12"
+  filename         = data.archive_file.lambda_zip.output_path  # Path to the ZIP archive of Lambda function code
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+
+  environment {
+    variables = {
+      pool_id = aws_cognito_user_pool.predictia.id
+    }
+  }
+}
+
 # Define IAM role for Lambda function
 resource "aws_iam_role" "lambda_role" {
   name = "lambda-role"
@@ -109,6 +125,28 @@ resource "aws_iam_role" "lambda_role" {
     ]
   })
 }
+
+resource "aws_iam_policy" "cognito_list_users_policy" {
+  name        = "cognito-list-users-policy"
+  description = "Allows Lambda execution role to list users in Cognito User Pool"
+  
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "cognito-idp:ListUsers"
+        Resource = "arn:aws:cognito-idp:${var.region_aws}:${var.aws_account_number}:userpool/${aws_cognito_user_pool.predictia.id}"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cognito_list_users_policy_attachment" {
+  role       = aws_iam_role.lambda_role.name
+  policy_arn = aws_iam_policy.cognito_list_users_policy.arn
+}
+
 
 # Attach IAM policy to Lambda role
 resource "aws_iam_role_policy_attachment" "lambda_attachment" {

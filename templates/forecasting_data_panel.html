@@ -112,7 +112,11 @@
                     console.log("data");
                 });
             }else{
-                Swal.fire('Selecciona productos para generar la gráfica');
+                Swal.fire({
+                    title: "Información",
+                    text: 'Selecciona productos para generar la gráfica',
+                    confirmButtonColor: '#000000',
+                  });
             }
             
         }
