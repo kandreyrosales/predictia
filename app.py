@@ -202,7 +202,7 @@ def login():
         if username and password:
             cognito_response = authenticate_user(username, password)
             if cognito_response.get("reason") is not None:
-                return render_template('login/login.html', error=cognito_response.get("reason"))
+                return render_template('login/login.html', error=cognito_response.get("error_info"))
             else:
                 challenge_name = cognito_response.get('ChallengeName', None)
                 if challenge_name == 'NEW_PASSWORD_REQUIRED':
