@@ -22,12 +22,7 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 CLIENT_ID_COGNITO =os.getenv("client_id")
 USER_POOL_ID_COGNITO =os.getenv("user_pool")
 
-cognito_client = boto3.client(
-    'cognito-idp', 
-    region_name=COGNITO_REGION, 
-    aws_access_key_id=accessKeyId,
-    aws_secret_access_key=secretAccessKey
-)
+cognito_client = boto3.client('cognito-idp')
 
 def lamdba_metrics():
     try:
