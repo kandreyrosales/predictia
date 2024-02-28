@@ -39,12 +39,7 @@ def upload_to_server():
     file = request.files['file']
 
     # Upload the file to S3
-    s3 = boto3.client(
-        's3', 
-        region_name=COGNITO_REGION, 
-        aws_access_key_id=accessKeyId,
-        aws_secret_access_key=secretAccessKey
-    )
+    s3 = boto3.client('s3', region_name=COGNITO_REGION)
     try:
         s3.upload_fileobj(file, bucket_name, file.filename)
         return 'Archivo subido exitosamente!'
@@ -279,12 +274,7 @@ def logout():
 
 
 # Initialize Boto3 client for Lambda
-lambda_client = boto3.client(
-    'lambda', 
-    region_name=COGNITO_REGION, 
-    aws_access_key_id=accessKeyId,
-    aws_secret_access_key=secretAccessKey
-)
+lambda_client = boto3.client('lambda', region_name=COGNITO_REGION)
 
 @app.route('/invoke_lambda_ids', methods=["GET"])
 def invoke_lambda_ids():
