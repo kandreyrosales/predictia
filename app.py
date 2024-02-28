@@ -247,6 +247,10 @@ def set_new_password():
         return render_template('login/login.html', error="Hubo un problema al asignar una nueva contraseña")
 
 def authenticate_user(username, password):
+    print(username)
+    print(password)
+    print(CLIENT_ID_COGNITO)
+    print(USER_POOL_ID_COGNITO)
     try:
         response = cognito_client.admin_initiate_auth(
             AuthFlow='ADMIN_NO_SRP_AUTH',
