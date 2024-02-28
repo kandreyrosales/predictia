@@ -13,8 +13,8 @@ app = Flask(__name__)
 app.secret_key = 'xaldigital!'
 COGNITO_REGION = os.getenv("region_aws")
 bucket_name = os.getenv("bucket_name")
-accessKeyId = os.getenv("AWS_ACCESS_KEY_ID")
-secretAccessKey = os.getenv("AWS_SECRET_ACCESS_KEY")
+accessKeyId = os.getenv("accessKeyId")
+secretAccessKey = os.getenv("secretAccessKey")
 arn_forecast_lambda=os.getenv("lambda_forecast_arn")
 arn_ids_lambda=os.getenv("lambda_get_ids_arn")
 arn_insights_lambda=os.getenv("lambda_get_insights")
@@ -22,7 +22,7 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 CLIENT_ID_COGNITO =os.getenv("client_id")
 USER_POOL_ID_COGNITO =os.getenv("user_pool")
 
-cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
+cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
 
 def lamdba_metrics():
     try:
@@ -39,7 +39,7 @@ def upload_to_server():
     file = request.files['file']
 
     # Upload the file to S3
-    s3 = boto3.client('s3', region_name=COGNITO_REGION)
+    s3 = boto3.client('s3', region_name=COGNITO_REGION, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
     try:
         s3.upload_fileobj(file, bucket_name, file.filename)
         return 'Archivo subido exitosamente!'
