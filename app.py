@@ -19,8 +19,8 @@ arn_forecast_lambda=os.getenv("lambda_forecast_arn")
 arn_ids_lambda=os.getenv("lambda_get_ids_arn")
 arn_insights_lambda=os.getenv("lambda_get_insights")
 arn_metrics_lambda=os.getenv("lambda_get_metrics")
-client_id_cognito =os.getenv("client_id")
-user_pool_cognito =os.getenv("user_pool")
+CLIENT_ID_COGNITO =os.getenv("client_id")
+USER_POOL_ID_COGNITO =os.getenv("user_pool")
 
 cognito_client = boto3.client(
     'cognito-idp', 
@@ -235,7 +235,7 @@ def set_new_password():
     session_data=request.form['session']
     try:
         response = cognito_client.respond_to_auth_challenge(
-            ClientId=client_id_cognito,  # Replace 'your-client-id' with your Cognito app client ID
+            ClientId=CLIENT_ID_COGNITO,  # Replace 'your-client-id' with your Cognito app client ID
             ChallengeName='NEW_PASSWORD_REQUIRED',
             Session=session_data,  # Include the session token from the previous response
             ChallengeResponses={
@@ -259,8 +259,8 @@ def authenticate_user(username, password):
                 'USERNAME': username,
                 'PASSWORD': password
             },
-            ClientId=client_id_cognito,
-            UserPoolId=user_pool_cognito,
+            ClientId=CLIENT_ID_COGNITO,
+            UserPoolId=USER_POOL_ID_COGNITO,
             ClientMetadata={
                   'username': username,
                   'password': password,
