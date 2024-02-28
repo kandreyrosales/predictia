@@ -43,7 +43,7 @@ def upload_to_server():
     # Upload the file to S3
     try:
         s3_client.upload_fileobj(file, bucket_name, file.filename)
-        return 'Archivo subido exitosamente!'
+        return 'Archivo subido exitosamente. En unos minutos recibirá una notificación a su correo cuando el análisis de los datos haya terminado!'
     except Exception as e:
         return str(e)
 

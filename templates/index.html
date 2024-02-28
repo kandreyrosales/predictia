@@ -341,37 +341,30 @@ $(document).ready(function() {
       $("#"+loading_element_id).show();
     }
 
-    function create_chart_instance(chartDivId, x_axis_values){
-      var chart_instance = new Chart(chartDivId, {
-        type: "line",
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'right',
-            },
-            title: {
-              display: false,
-            }
+    /* Logic myChartHistoricalData */
+    var myChartHistoricalData = new Chart("myChartDatosHistoricos", {
+      type: "line",
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
           },
+          title: {
+            display: false,
+          }
         },
-      });
-      return chart_instance
-    }
+      },
+    });
 
-    // Passing X Axis Data and creating Chart Instance
-    var myChartHistoricalData = create_chart_instance("myChartDatosHistoricos");
-    var myChartDatosPronosticados = create_chart_instance("myChartDatosPronosticados");
-
-    function load_custom_chart(chart_instance, endpoint_ml_model_result, loading_element_id){
-      $.ajax(
+    $.ajax(
         {
-          url:endpoint_ml_model_result,
+          url:"{{ url_for('invoke_lambda_historical') }}"+"?ids="+{{unique_ids}}.join(','),
           type: 'get',
-          beforeSend: loading_data(loading_element_id),
+          beforeSend: loading_data("loading_data_historical_data"),
         })
       .done(function(data) {
-          $("#"+loading_element_id).hide();
+          $("#loading_data_historical_data").hide();
           chart_instance.config.data.datasets = data.unique_ids_data;
           chart_instance.config.data.labels = data.labels;
           chart_instance.update();
@@ -379,25 +372,42 @@ $(document).ready(function() {
       .fail(function(jqXHR) {
         console.log("data");
       });
-    }
-    
 
-    var endpoint_xaldigital_historical_data = "{{ url_for('invoke_lambda_historical') }}";
-    var endpoint_xaldigital_forecasted_data = "{{ url_for('invoke_lambda_forecasted_data') }}";
-    
-    // Loading data for myChartHistoricalData chart
-    load_custom_chart(
-      myChartHistoricalData,
-      endpoint_xaldigital_historical_data+"?ids="+{{unique_ids}}.join(','),
-      "loading_data_historical_data"
-    );
+    /* End Logic myChartHistoricalData */
 
-    // Loading data for myChartDatosPronosticados chart
-    load_custom_chart(
-      myChartDatosPronosticados,
-      endpoint_xaldigital_forecasted_data+"?ids="+{{unique_ids}}.join(','),
-      "loading_data_forecasted_data"
-    );
+
+    /* Logic myChartDatosPronosticados */
+    var myChartDatosPronosticados = new Chart("myChartDatosPronosticados", {
+      type: "line",
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'right',
+          },
+          title: {
+            display: false,
+          }
+        },
+      },
+    });
+
+    $.ajax(
+      {
+        url:"{{ url_for('invoke_lambda_forecasted_data') }}"+"?ids="+{{unique_ids}}.join(','),
+        type: 'get',
+        beforeSend: loading_data("loading_data_forecasted_data"),
+      })
+    .done(function(data) {
+        $("#loading_data_forecasted_data").hide();
+        chart_instance.config.data.datasets = data.unique_ids_data;
+        chart_instance.config.data.labels = data.labels;
+        chart_instance.update();
+    })
+    .fail(function(jqXHR) {
+      console.log("data");
+    });
+    /* End Logic myChartDatosPronosticados */
 
   });
 </script>
