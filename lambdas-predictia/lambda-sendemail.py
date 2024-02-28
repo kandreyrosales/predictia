@@ -30,6 +30,8 @@ def lambda_handler(event, context):
         # To get the data of the email: [{'username': 'kandreyrosales', 'email': 'kandreyrosales@gmail.com'}]
         # Put here the code to send email with AWS SES
         email = last_user[0]["email"]
+        filename_processed = event.get('file_name')
+        message = f"Proceso de análisis finalizado para el archivo {filename_processed}. Abra la aplicación o recargue la página para ver los datos actualizados."
         response = {
             'statusCode': 200,
             'body': json.dumps({'message': 'Email enviado exitosamente'})

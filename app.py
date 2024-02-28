@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 
 app.secret_key = 'xaldigital!'
-COGNITO_REGION = os.getenv("region_aws")
+AWS_REGION_PREDICTIA = os.getenv("region_aws")
 bucket_name = os.getenv("bucket_name")
 accessKeyId = os.getenv("accessKeyId")
 secretAccessKey = os.getenv("secretAccessKey")
@@ -22,7 +22,10 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 CLIENT_ID_COGNITO =os.getenv("client_id")
 USER_POOL_ID_COGNITO =os.getenv("user_pool")
 
-cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
+# boto3 clients
+cognito_client = boto3.client('cognito-idp', region_name=AWS_REGION_PREDICTIA, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
+lambda_client = boto3.client('lambda', region_name=AWS_REGION_PREDICTIA, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
+s3_client = boto3.client('s3', region_name=AWS_REGION_PREDICTIA, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
 
 def lamdba_metrics():
     try:
@@ -37,11 +40,9 @@ def lamdba_metrics():
 def upload_to_server():
     # Get the file from the request
     file = request.files['file']
-
     # Upload the file to S3
-    s3 = boto3.client('s3', region_name=COGNITO_REGION, aws_access_key_id=accessKeyId, aws_secret_access_key=secretAccessKey)
     try:
-        s3.upload_fileobj(file, bucket_name, file.filename)
+        s3_client.upload_fileobj(file, bucket_name, file.filename)
         return 'Archivo subido exitosamente!'
     except Exception as e:
         return str(e)
@@ -272,9 +273,6 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
-
-# Initialize Boto3 client for Lambda
-lambda_client = boto3.client('lambda', region_name=COGNITO_REGION)
 
 @app.route('/invoke_lambda_ids', methods=["GET"])
 def invoke_lambda_ids():
