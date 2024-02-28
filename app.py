@@ -274,7 +274,7 @@ def authenticate_user(username, password):
     except Exception as e:
         print("General Error ", e)
         # Handle other errors
-        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": f"{client_id_cognito} - {user_pool_cognito} - {COGNITO_REGION} - {accessKeyId} - {secretAccessKey}"}
+        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     
 @app.route('/logout')
 def logout():
