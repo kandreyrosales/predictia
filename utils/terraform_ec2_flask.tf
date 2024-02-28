@@ -3,13 +3,13 @@ provider "aws" {
 }
 
 resource "aws_cognito_user_pool" "predictia" {
-  name = "${var.cognito_pool_name}"
+  name = var.cognito_pool_name
   # Enable admin user password authentication
   
 }
 
 resource "aws_cognito_user_pool_client" "predictiacognito_client" {
-  name = "predictia-app-client"
+  name = "predictiaappclient"
   user_pool_id = aws_cognito_user_pool.predictia.id
   # Configure other settings as needed
   explicit_auth_flows = ["ALLOW_USER_SRP_AUTH", "ALLOW_USER_PASSWORD_AUTH", "ALLOW_ADMIN_USER_PASSWORD_AUTH", "ALLOW_REFRESH_TOKEN_AUTH"]
@@ -159,7 +159,8 @@ resource "aws_instance" "flask_ec2" {
   ami                    = var.ami  
   instance_type          = var.instance_type            
   key_name               = var.ssh_key_pair_name       
-  associate_public_ip_address = true            
+  associate_public_ip_address = true      
+
   
   provisioner "remote-exec" {
     inline = [
@@ -169,6 +170,12 @@ resource "aws_instance" "flask_ec2" {
       "curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py",
       "sudo python3 get-pip.py",
       "sudo apt-get install -y python3-venv",  # Install python3-venv package for virtual environments
+
+      "echo \"export AWS_ACCESS_KEY_ID=${var.accessKeyId}\" >> ~/.bashrc",
+      "echo \"export AWS_SECRET_ACCESS_KEY=${var.secretAccessKey}\" >> ~/.bashrc",
+      "echo \"export AWS_REGION=${var.region_aws}\" >> ~/.bashrc",
+      "echo \"export client_id=${aws_cognito_user_pool_client.predictiacognito_client.id}\" >> ~/.bashrc",
+      "echo \"export user_pool=${aws_cognito_user_pool.predictia.id}\" >> ~/.bashrc",
 
       # Clone Flask application from GitHub
       "git clone ${var.github_repo} /home/ubuntu/flask_app",
@@ -271,6 +278,10 @@ output "lambda_forecast_arn" {
 
 output "lambda_insights_arn" {
   value = aws_lambda_function.lambdainsights.arn
+}
+
+output "lambda_emails_arn" {
+  value = aws_lambda_function.lambdasendemail.arn
 }
 
 output "lambda_metrics_arn" {

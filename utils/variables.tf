@@ -6,6 +6,19 @@ variable "region_aws" {
  default     = "us-east-1"
 }
 
+variable "aws_account_number" {
+ type        = string
+ description = "AWS Account Number"
+ default     = "SDASDAD"
+}
+
+variable "cognito_pool_name" {
+ type        = string
+ description = "AWS Congito Pool ID"
+ default     = "predictiauserpool"
+}
+
+
 variable "instance_type" {
  type        = string
  description = "AWS Instance Type"
@@ -27,13 +40,13 @@ variable "bucket_name" {
 variable "accessKeyId" {
  type        = string
  description = "accessKeyId AWS"
- default     = "XXXXXXX"
+ default     = "ASDASDASDASDASD"
 }
 
 variable "secretAccessKey" {
  type        = string
  description = "secretAccessKey AWS"
- default     = "xxxxxxxxxxxxxxxx"
+ default     = "zSDSADASDASDASDAS"
 }
 
 variable "ssh_key_pair_name" {
