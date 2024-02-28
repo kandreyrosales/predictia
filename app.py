@@ -11,7 +11,7 @@ from functools import wraps
 app = Flask(__name__)
 
 app.secret_key = 'xaldigital!'
-COGNITO_REGION = os.getenv("AWS_REGION")
+COGNITO_REGION = os.getenv("region_aws")
 bucket_name = os.getenv("bucket_name")
 accessKeyId = os.getenv("AWS_ACCESS_KEY_ID")
 secretAccessKey = os.getenv("AWS_SECRET_ACCESS_KEY")
