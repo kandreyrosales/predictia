@@ -19,8 +19,8 @@ arn_forecast_lambda=os.getenv("lambda_forecast_arn")
 arn_ids_lambda=os.getenv("lambda_get_ids_arn")
 arn_insights_lambda=os.getenv("lambda_get_insights")
 arn_metrics_lambda=os.getenv("lambda_get_metrics")
-client_id_cognito =str(os.getenv("client_id"))
-user_pool_cognito =str(os.getenv("user_pool"))
+client_id_cognito =os.getenv("client_id")
+user_pool_cognito =os.getenv("user_pool")
 
 cognito_client = boto3.client(
     'cognito-idp', 
