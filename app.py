@@ -11,10 +11,10 @@ from functools import wraps
 app = Flask(__name__)
 
 app.secret_key = 'xaldigital!'
-COGNITO_REGION = os.getenv("region_aws")
+COGNITO_REGION = os.getenv("AWS_DEFAULT_REGION")
 bucket_name = os.getenv("bucket_name")
-accessKeyId = os.getenv("accessKeyId")
-secretAccessKey = os.getenv("secretAccessKey")
+accessKeyId = os.getenv("AWS_ACCESS_KEY_ID")
+secretAccessKey = os.getenv("AWS_SECRET_ACCESS_KEY")
 arn_forecast_lambda=os.getenv("lambda_forecast_arn")
 arn_ids_lambda=os.getenv("lambda_get_ids_arn")
 arn_insights_lambda=os.getenv("lambda_get_insights")
@@ -22,7 +22,12 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 CLIENT_ID_COGNITO =os.getenv("client_id")
 USER_POOL_ID_COGNITO =os.getenv("user_pool")
 
-cognito_client = boto3.client('cognito-idp')
+cognito_client = boto3.client(
+    'cognito-idp', 
+    region_name=COGNITO_REGION, 
+    aws_access_key_id=accessKeyId,
+    aws_secret_access_key=secretAccessKey
+)
 
 def lamdba_metrics():
     try:
@@ -247,10 +252,6 @@ def set_new_password():
         return render_template('login/login.html', error="Hubo un problema al asignar una nueva contraseña")
 
 def authenticate_user(username, password):
-    print(username)
-    print(password)
-    print(CLIENT_ID_COGNITO)
-    print(USER_POOL_ID_COGNITO)
     try:
         response = cognito_client.admin_initiate_auth(
             AuthFlow='ADMIN_NO_SRP_AUTH',
