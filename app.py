@@ -22,7 +22,7 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 CLIENT_ID_COGNITO =os.getenv("client_id")
 USER_POOL_ID_COGNITO =os.getenv("user_pool")
 
-cognito_client = boto3.client('cognito-idp')
+cognito_client = boto3.client('cognito-idp', region_name=COGNITO_REGION)
 
 def lamdba_metrics():
     try:
