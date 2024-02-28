@@ -197,7 +197,6 @@ def login():
         if username and password:
             cognito_response = authenticate_user(username, password)
             if cognito_response.get("reason") is not None:
-                print(os.environ)
                 return render_template('login/login.html', error=cognito_response.get("error_info"))
             else:
                 challenge_name = cognito_response.get('ChallengeName', None)
@@ -263,14 +262,12 @@ def authenticate_user(username, password):
         )
         return response
     except cognito_client.exceptions.NotAuthorizedException as e:
-        print("NotAuthorizedException ",e)
         # Handle invalid credentials
         return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     except cognito_client.exceptions.ResourceNotFoundException as e:
         # Handle invalid credentials
         return {"reason": "Error General", "error_info": "Recurso no encontrado"}
     except Exception as e:
-        print("General Error ", e)
         # Handle other errors
         return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": e}
     
