@@ -365,9 +365,9 @@ $(document).ready(function() {
         })
       .done(function(data) {
           $("#loading_data_historical_data").hide();
-          chart_instance.config.data.datasets = data.unique_ids_data;
-          chart_instance.config.data.labels = data.labels;
-          chart_instance.update();
+          myChartHistoricalData.config.data.datasets = data.unique_ids_data;
+          myChartHistoricalData.config.data.labels = data.labels;
+          myChartHistoricalData.update();
       })
       .fail(function(jqXHR) {
         console.log("data");
@@ -400,9 +400,9 @@ $(document).ready(function() {
       })
     .done(function(data) {
         $("#loading_data_forecasted_data").hide();
-        chart_instance.config.data.datasets = data.unique_ids_data;
-        chart_instance.config.data.labels = data.labels;
-        chart_instance.update();
+        myChartDatosPronosticados.config.data.datasets = data.unique_ids_data;
+        myChartDatosPronosticados.config.data.labels = data.labels;
+        myChartDatosPronosticados.update();
     })
     .fail(function(jqXHR) {
       console.log("data");
