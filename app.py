@@ -22,7 +22,12 @@ arn_metrics_lambda=os.getenv("lambda_get_metrics")
 client_id_cognito =os.getenv("client_id")
 user_pool_cognito =os.getenv("user_pool")
 
-cognito_client = boto3.client('cognito-idp')
+cognito_client = boto3.client(
+    'cognito-idp', 
+    region_name=COGNITO_REGION, 
+    aws_access_key_id=accessKeyId,
+    aws_secret_access_key=secretAccessKey
+)
 
 def lamdba_metrics():
     try:
@@ -269,7 +274,7 @@ def authenticate_user(username, password):
     except Exception as e:
         print("General Error ", e)
         # Handle other errors
-        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": f"{client_id_cognito} - {user_pool_cognito} - {COGNITO_REGION}"}
+        return {"reason": "Credenciales Inválidas o Usuario No Encontrado", "error_info": f"{client_id_cognito} - {user_pool_cognito} - {COGNITO_REGION} - {accessKeyId} - {secretAccessKey}"}
     
 @app.route('/logout')
 def logout():
