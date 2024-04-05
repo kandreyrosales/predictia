@@ -267,6 +267,7 @@ def authenticate_user(username, password):
         # Handle invalid credentials
         return {"reason": "Usuario No Encontrado"}
     except Exception as e:
+        print(e)
         # Handle other errors
         return {"reason": "Error general. Por favor contactar al administrador"}
     
